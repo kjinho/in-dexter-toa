@@ -1,3 +1,12 @@
+// in-dexter-toa, Copyright 2025 Jin-Ho King
+// Use of this code is governed by the License in the LICENSE.txt file.
+// Revised for generating a table of authorities for legal citations
+// 2025-12-13
+// - When given the "initial" as a string, use the full string (not the initial letter) as the grouping title.
+//   This change allows creation of a single index with different groups for "Cases", "Statutes", "Rules", etc.
+// - Use dot leaders to separate the index entry and the page numbers.
+// - If an index entry appears on more than five pages, display _passim_ instead of the list of pages.
+
 // Copyright 2023, 2024 Rolf Bremer, Jutta Klebe
 // Use of this code is governed by the License in the LICENSE.txt file.
 // For a 'how to use this package', see the accompanying .md, .pdf + .typ documents.
@@ -236,7 +245,7 @@
           initials.insert(sort-by, letter)
           letter
         } else if (type(initial) == str) {
-          let first-letter = sort-order(initial.first())
+          let first-letter = initial //sort-order(initial.first())
           initials.insert(first-letter, first-letter)
           first-letter
         } else {
@@ -351,14 +360,18 @@
   let render-function = render-link.with(use-page-counter, range-delimiter, spc, mpc)
 
 let rendered-pages = {
-    let p = pages.map(render-function)
+    let p = if pages.len() <= 5 {
+      pages.map(render-function)
+    } else {
+      ([_passim_],)
+    }
     box(width: lvl * 1em)
     apply-entry-casing(
       display,
       entry-casing,
       entry.at("apply-casing", default: auto),
     )
-    box(width: 1fr)
+    box(width: 1fr, [#line(length: 100%, stroke: (dash: "dotted", thickness: 0.6pt))]) // XXX dot leader
     p.join(", ")
     parbreak()
   }
